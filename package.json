@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "readline-sync": "^1.4.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.4",
+    "typescript-require": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.5",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "prettier-eslint": "^16.3.0"
+  }
+}
