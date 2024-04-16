@@ -12,7 +12,7 @@ function createMatch(human, computer, rules) {
     result: 'Match ongoing',
 
     play() {
-      this.roundsTotal = Math.max(1, this.human.promptRoundTotal());
+      this.roundsTotal = this.human.promptRoundTotal();
       while (!this.gameOver()) {
         const round = createRound(this.human, this.computer);
         this.rounds.push(round);

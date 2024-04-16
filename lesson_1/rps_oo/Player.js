@@ -10,7 +10,7 @@ function createPlayer(name, moveOptions) {
 
 function createHumanPlayer(name, moveOptions) {
   return Object.assign(createPlayer(name, moveOptions), {
-    roundMaxPrompt: 'Enter the number of rounds to score out of (1 by default): ',
+    roundMaxPrompt: 'Enter the number of rounds to score out of (1 by default; minimum 1): ',
     playAgainPrompt: 'Play again? y / n: ',
     getInvalidInputMsg: (input) => `Input ${input} is invalid`,
 
@@ -30,7 +30,7 @@ function createHumanPlayer(name, moveOptions) {
         this.getInvalidInputMsg,
         isValidNum,
       ));
-      return roundTotal;
+      return Math.max(1, roundTotal);
     },
 
     promptPlayerName() {
