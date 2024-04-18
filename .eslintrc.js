@@ -1,3 +1,5 @@
+const { off } = require("process");
+
 module.exports = {
   env: {
     commonjs: true,
@@ -22,5 +24,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    'no-console': 'off',
+    'no-debugger': off,
   },
 };
