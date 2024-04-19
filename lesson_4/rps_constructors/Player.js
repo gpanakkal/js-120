@@ -12,7 +12,8 @@ function Human(name, moveOptions) {
   this.playAgainPrompt = 'Play again? y / n: ';
 }
 
-Human.prototype = {
+Human.prototype = Object.create(Player.prototype);
+Object.assign(Human.prototype, {
   constructor: Human,
   
   getInvalidInputMsg: (input) => `Input ${input} is invalid`,
@@ -75,19 +76,20 @@ Human.prototype = {
     }
     return userInput;
   },
-}
+});
 
 function Computer(name, moveOptions) {
   Player.call(this, name, moveOptions);
 }
 
-Computer.prototype = {
+Computer.prototype = Object.create(Player.prototype);
+Object.assign(Computer.prototype, {
   constructor: Computer,
 
   randomMove() {
     const randomNum = Math.floor(Math.random() * this.moveOptions.length);
     return this.moveOptions[randomNum];
   },
-}
+});
 
 module.exports = { Human, Computer };
