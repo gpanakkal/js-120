@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 const { GameRules } = require('./GameRules');
 const { Match } = require('./Match');
-const { createHumanPlayer, createComputer } = require('./Player');
+const { Human, Computer } = require('./Player');
 
 function RPSGame(rules) {
   this.rules = rules;
-  this.human = createHumanPlayer('human', rules.moveOptions);
-  this.computer = createComputer('computer', rules.moveOptions);
+  this.human = new Human('human', rules.moveOptions);
+  this.computer = new Computer('computer', rules.moveOptions);
   this.match = undefined;
   this.welcomeMessage = 'Welcome to Rock Paper Scissors';
   this.goodbyeMessage = 'Thanks for playing Rock Paper Scissors. Goodbye!';
