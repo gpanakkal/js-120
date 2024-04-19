@@ -1,28 +1,29 @@
-function Rectangle(length, width) {
-  this.length = length;
-  this.width = width;
+const Swimmable = {
+  swim() {}
 }
 
-Rectangle.prototype.getArea = function() {
-  return this.length * this.width;
+const Flyable = {
+  fly() {}
 }
 
-Rectangle.prototype.toString = function() {
-  return `[Rectangle ${this.length} x ${this.width}]`;
-}
+class Stork {}
+Object.assign(Stork.prototype, Flyable);
 
-function Square(sideLength) {
-  this.length = sideLength;
-  this.width = sideLength;
-}
+class Parrot {}
+Object.assign(Parrot.prototype, Flyable);
 
-// Square.prototype = Object.create(Rectangle.prototype);
+class Penguin {}
+Object.assign(Penguin.prototype, Swimmable);
 
-Square.prototype.toString = function() {
-  return `[Square ${this.length} x ${this.width}]`;
-}
+class Ostrich {}
+Object.assign(Ostrich.prototype, Swimmable);
 
-Object.setPrototypeOf(Square.prototype, Rectangle.prototype);
+class Duck {}
+Object.assign(Duck.prototype, {Swimmable}, Flyable);
 
-let sqr = new Square(5);
-console.log({square: sqr, area: sqr.getArea()}); // => 25
+class Goose {}
+Object.assign(Goose.prototype, {Swimmable}, Flyable);
+
+console.log(Duck.prototype)
+console.log(Duck.prototype.Swimmable.swim === Goose.prototype.Swimmable.swim)
+console.log(Duck.prototype.fly === Goose.prototype.fly)
