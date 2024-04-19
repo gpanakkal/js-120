@@ -1,0 +1,44 @@
+/* eslint-disable no-console */
+const { GameRules } = require('./GameRules');
+const { Match } = require('./Match');
+const { createHumanPlayer, createComputer } = require('./Player');
+
+function RPSGame(rules) {
+  this.rules = rules;
+  this.human = createHumanPlayer('human', rules.moveOptions);
+  this.computer = createComputer('computer', rules.moveOptions);
+  this.match = undefined;
+  this.welcomeMessage = 'Welcome to Rock Paper Scissors';
+  this.goodbyeMessage = 'Thanks for playing Rock Paper Scissors. Goodbye!';
+}
+
+RPSGame.prototype = {
+  constructor: RPSGame,
+
+  play() {
+    this.initGame();
+    do {
+      this.match = new Match(this.human, this.computer, this.rules);
+      this.match.play();
+    } while (this.human.promptPlayAgain() === true);
+    this.displayGoodbyeMessage();
+  },
+
+  initGame() {
+    console.clear();
+    this.displayWelcomeMessage();
+    this.human.promptPlayerName();
+  },
+
+  displayWelcomeMessage() {
+    console.log(this.welcomeMessage);
+  },
+
+  displayGoodbyeMessage() {
+    console.log(this.goodbyeMessage);
+  },
+}
+
+const rules = new GameRules();
+const game = new RPSGame(rules);
+game.play();
