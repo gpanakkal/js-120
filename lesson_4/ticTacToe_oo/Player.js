@@ -3,8 +3,9 @@ const { question } = require('readline-sync');
  * 
  */
 class Player {
-  constructor(name) {
+  constructor(name, marker) {
     this.name = name;
+    this.marker = marker;
   }
 }
 
@@ -29,6 +30,23 @@ class humanPlayer extends Player {
       userInput = question(promptMsg);
     }
     return userInput;
+  }
+
+  getNumberInput(min, max, defaultValue, promptMsg, invalidInputMsg) {
+    
+    const inputValidator = (input) => {
+      const isWithinBounds = Number(input) >= min && Number(input) <= max;
+      const noValuePassed = String(input).trim() === '';
+      return isWithinBounds || noValuePassed;
+    };
+
+    const userInput = this.getValidInput(promptMsg, invalidInputMsg, inputValidator);
+
+    return userInput.trim() === '' ? defaultValue : Number(userInput.trim());
+  }
+
+  getMoveInput(promptMsg, invalidInputMsg, ) {
+    
   }
 }
 
