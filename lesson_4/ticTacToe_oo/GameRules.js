@@ -1,0 +1,6 @@
+
+class GameRules {
+  constructor() {
+
+  }
+}
