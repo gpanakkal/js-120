@@ -2,9 +2,13 @@
   "MIN_BOARD_LENGTH": 3,
   "MAX_BOARD_LENGTH": 6,
   "DEFAULT_BOARD_LENGTH": 3,
-  "BOARD_ROW_SEPARATOR": "_",
-  "BOARD_COLUMN_SEPARATOR": "|",
   "BOARD_CELL_SIDE_LENGTH": 3,
+  "BOARD_ROW_SEPARATOR": "_",
+  "BOARD_ROW_LABELS": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  "BOARD_COLUMN_SEPARATOR": "|",
+  "BOARD_COLUMN_LABELS": ["M", "N", "O", "P", "Q", "R", "S", "T", "U"],
+  "DEFAULT_WINNING_LINE_LENGTH": 3,
+  "MIN_WINNING_LINE_LENGTH": 2,
 
   "MIN_PLAYER_COUNT": 2,
   "MAX_PLAYER_COUNT": 10,
@@ -12,6 +16,10 @@
   "DEFAULT_HUMAN_PLAYER_COUNT": 1,
   "MIN_HUMAN_PLAYER_COUNT": 1,
   "DEFAULT_HUMAN_BASE_NAME": "Human",
-  "DEFAULT_COMPUTER_BASE_NAME": "Computer",
-  "DEFAULT_PLAYER_MARKERS": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+  "COMPUTER_BASE_NAME": "Computer",
+  "BASE_NAME_MAX_LENGTH": 15,
+  "BASE_NAME_MIN_LENGTH": 2,
+  "PLAYER_MARKERS": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+
+  "INPUT_PROMPT": "==>"
 }

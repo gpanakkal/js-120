@@ -10,10 +10,12 @@ const { Match } = require('./Match');
 class TicTacToeGame {
   constructor() {
     this.rules = new GameRules();
+    this.scores = {};
   }
 
   play() {
-    this.match = new Match(this.rules);
+    const match = new Match(this.rules);
+    match.play();
   }
 
 }
