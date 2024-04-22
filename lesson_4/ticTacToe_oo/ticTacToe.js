@@ -9,7 +9,7 @@ const { Match } = require('./Match');
  */
 class TicTacToeGame {
   constructor() {
-    this.rules = new GameRules;
+    this.rules = new GameRules();
   }
 
   play() {

@@ -11,7 +11,15 @@ const { computerPlayer, humanPlayer } = require('./Player');
  */
 class GameRules {
   constructor() {
-    const firstHuman = new Player(constants.DEFAULT_HUMAN_BASE_NAME);
+    const defaultRules = {
+      BoardLength: constants.DEFAULT_BOARD_LENGTH,
+      PlayerCount: constants.DEFAULT_PLAYER_COUNT,
+      HumanPlayerCount: constants.DEFAULT_HUMAN_PLAYER_COUNT,
+      HumanBaseName: constants.DEFAULT_HUMAN_BASE_NAME,
+      ComputerBaseName: constants.DEFAULT_COMPUTER_BASE_NAME,
+      PlayerMarkers: constants.DEFAULT_PLAYER_MARKERS,
+    }
+    const firstHuman = new Player(defaultRules.HumanBaseName, defaultRules.PlayerMarkers[0]);
     this.players = [firstHuman];
 
     this.boardLength = this.promptBoardLength(firstHuman);
