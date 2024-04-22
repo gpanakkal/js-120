@@ -1,4 +1,12 @@
 const constants = require('./constants.json');
+
+class Cell {
+  constructor(rowLabel, columnLabel, value) {
+    this.row = rowLabel;
+    this.col = columnLabel;
+    this.val = value;
+  }
+}
 /**
  * Update and display the game board
  */
@@ -7,58 +15,80 @@ class Board {
     this.emptyCellValue = ' ';
     this.sideLength = sideLength;
     this.winningLineLength = winningLineLength;
-    this.state = this.initializeState();
+    this.initializeState();
     
-    console.log({board: this});
+    // console.log({board: this});
   }
 
-  makeNewRow() {
+  getLabels() {
+    const rowLabels = constants.BOARD_ROW_LABELS.slice(0, this.sideLength);
     const columnLabels = constants.BOARD_COLUMN_LABELS.slice(0, this.sideLength);
-    return columnLabels.reduce((obj, current) => Object.assign(obj, {[current]: this.emptyCellValue}), {});
+    return {rowLabels, columnLabels};
   }
 
   initializeState() {
-    const rowLabels = constants.BOARD_ROW_LABELS.slice(0, this.sideLength);
-    return rowLabels.reduce((obj, current) => Object.assign(obj, {[current]: this.makeNewRow()}), {});
+    const { rowLabels, columnLabels } = this.getLabels();
+
+    const mapRowCells = (rowLabel, columnLabel) => ({[`${rowLabel}${columnLabel}`]: this.emptyCellValue});
+
+    const cells = rowLabels.map((rowLabel) => columnLabels
+      .map((columnLabel) => mapRowCells.call(this, rowLabel, columnLabel))
+      .reduce((rowObj, cell) => Object.assign(rowObj, cell), {}))
+      // .flat(Infinity);
+    console.log({cells});
+    // this._state = cells;
+    this._state = cells.reduce((obj, cell) => Object.assign(obj, cell), {});
   }
 
-  // generate all winning lines as sets of 
+  get state() {
+    return this._state;
+  }
+
+  getStateEntries() {
+    return Object.entries(this.state);
+  }
+
+  // given a formatted cell, update state
+  set state(cell) {
+    const {row, col, val} = cell;
+    const address = `${row}${col}`;
+    this._state[address] = val;
+  }
+
+  // generate all winning lines as arrays of cells
   winningLines() {
+    const { rowLabels, columnLabels } = this.getLabels();
+    const getCombos = (arr, len) => arr.reduce((combos, el, idx) => {
+      const slice = arr.slice(idx, idx + len);
+      if (slice.length !== len) return combos;
+      combos.push(slice);
+      return combos;
+    }, []);
 
+    const winningRowLabelCombos = getCombos(rowLabels, this.winningLineLength);
+    const winningColLabelCombos = getCombos(columnLabels, this.winningLineLength);
+
+    // for each row label, get lines of columns
+    const 
   }
 
-  winningLineExists() {
+  // a winning is filled with a single shape
+  WinnerExists() {
 
-  }
-
-  boardIsFull() {
-    return this.state.every((cell) => cell !== this.emptyCellValue);
   }
 
   render() {
 
   }
 
-  /**
-   * Get an array of cell objects of form {rowLabel, columnLabel, value}
-   */
-  getCells() {
-    const entries = Object.entries(this.state);
-    return entries.reduce((outputArr, [rowLabel, column]) => {
-      const rowCells = Object.entries(column).map(([columnLabel, value]) => ({
-          row: rowLabel,
-          col: columnLabel,
-          value,
-        })
-      );
-      return outputArr.concat(rowCells);
-    }, []);
+  getEmptyCells() {
+    return this.getState(true).filter((cell) => cell.value === this.emptyCellValue);
   }
 
-  getEmptyCells() {
-    const allCells = this.getCells();
-    return allCells.filter((cell) => cell.value === this.emptyCellValue);
+  boardIsFull() {
+    return this.getEmptyCells().length === 0;
   }
+
 }
 
 module.exports = { Board };
