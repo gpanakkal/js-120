@@ -1,5 +1,3 @@
-const { off } = require("process");
-
 module.exports = {
   env: {
     commonjs: true,
@@ -25,6 +23,6 @@ module.exports = {
   },
   rules: {
     'no-console': 'off',
-    'no-debugger': off,
+    'no-debugger': 0,
   },
 };
