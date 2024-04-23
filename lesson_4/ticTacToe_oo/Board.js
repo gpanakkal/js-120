@@ -102,7 +102,7 @@ class Board {
     this.victoryLines = allLines;
   }
 
-  // return a shape if a winning line is filled with a single shape; else return false
+  // return a shape if a winning line is filled with a single shape; else return null
   winningShape() {
     const isWinningLine = (line) => {
       const lineValues = line.map((cellAddress) => this.state[cellAddress]);
@@ -112,7 +112,7 @@ class Board {
     };
 
     const winningLine = this.victoryLines.filter(isWinningLine)[0];
-    if (!winningLine) return false;
+    if (!winningLine) return null;
     return this.state[winningLine[0]];
   }
 

@@ -8,9 +8,11 @@ const constants = require('./constants.json');
  * Determine when the game has ended and display the result
  */
 class Match {
+
   constructor(rules) {
     this.board = new Board(rules.boardLength, rules.winningLineLength);
     this.players = rules.players;
+    this.winner = null;
   }
 
   /**
@@ -34,7 +36,8 @@ class Match {
       index = getNextIndex(index);
     }
 
-    return this.promptPlayAgain();
+    this.setWinner();
+    return { winner: this.setWinner, playAgain: this.promptPlayAgain() };
   }
 
   getHumanMove(player) {
@@ -49,6 +52,11 @@ class Match {
 
   gameIsOver() {
     return this.board.isFull() || this.board.winningShape();
+  }
+
+  setWinner() {
+    // if the game is over but there is no winning shape
+    this.winner = this.board.winningShape();
   }
 
   promptPlayAgain() {

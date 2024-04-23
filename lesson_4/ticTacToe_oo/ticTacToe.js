@@ -1,5 +1,6 @@
 const { GameRules } = require('./GameRules');
 const { Match } = require('./Match');
+const { ScoreBoard } = require('./ScoreBoard');
 /**
  * Game engine
   * Initialize game rules, then start a match
@@ -9,13 +10,14 @@ const { Match } = require('./Match');
 class TicTacToeGame {
   constructor() {
     this.rules = new GameRules();
-    this.scores = {};
+    this.scoreBoard = new ScoreBoard(this.rules.players);
   }
 
   play() {
     while (true) {
       const match = new Match(this.rules);
-      const playAgain = match.play();
+      const { winner, playAgain } = match.play();
+      this.scoreBoard.addWin(winner);
       if (!playAgain) break;
     }
   }
