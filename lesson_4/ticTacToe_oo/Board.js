@@ -1,15 +1,5 @@
 const constants = require('./constants.json');
 
-// class Cell {
-//   constructor(rowLabel, columnLabel, value) {
-//     this.row = rowLabel;
-//     this.col = columnLabel;
-//     this.val = value;
-//   }
-// }
-/**
- * Update and display the game board
- */
 class Board {
   #state;
 

@@ -33,6 +33,8 @@ class Match {
       }
       index = getNextIndex(index);
     }
+
+    return this.promptPlayAgain();
   }
 
   getHumanMove(player) {
@@ -47,6 +49,12 @@ class Match {
 
   gameIsOver() {
     return this.board.isFull() || this.board.winningShape();
+  }
+
+  promptPlayAgain() {
+    const promptMsg = constants.PLAY_AGAIN_PROMPT;
+    const userInput = this.players[0].getBooleanInput('n', promptMsg).trim().toLowerCase().slice[0];
+    return userInput === 'y';
   }
 }
 
