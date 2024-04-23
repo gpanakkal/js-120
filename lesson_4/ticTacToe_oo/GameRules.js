@@ -1,5 +1,6 @@
 const constants = require('./constants.json');
-const { ComputerPlayer, HumanPlayer } = require('./Player');
+const { ComputerPlayer } = require('./ComputerPlayer');
+const { HumanPlayer } = require('./HumanPlayer');
 /**
  * Define:
  * board size

@@ -1,4 +1,3 @@
-const constants = require('./constants.json');
 const { GameRules } = require('./GameRules');
 const { Match } = require('./Match');
 /**
@@ -14,9 +13,13 @@ class TicTacToeGame {
   }
 
   play() {
-    const match = new Match(this.rules);
-    match.play();
+    while (true) {
+      const match = new Match(this.rules);
+      const playAgain = match.play();
+      if (!playAgain) break;
+    }
   }
 }
 
-// const game = new TicTacToeGame();
+const game = new TicTacToeGame();
+game.play();

@@ -23,14 +23,16 @@ class Board {
   constructor(sideLength, winningLineLength) {
     this.emptyCellValue = constants.BOARD_EMPTY_CELL_SHAPE;
     this.sideLength = sideLength;
+    this.cellSideLength = constants.BOARD_CELL_SIDE_LENGTH;
+
     this.labels = {
       rows: constants.BOARD_ROW_LABELS.slice(0, this.sideLength),
       columns: constants.BOARD_COLUMN_LABELS.slice(0, this.sideLength),
     };
+
     this.winningLineLength = winningLineLength;
     this.initializeState();
     this.initializeVictoryLines();
-    // console.log({board: this});
   }
 
   /**
@@ -91,21 +93,20 @@ class Board {
       return this.getOtherCell(offset, currentCellAddress);
     });
     if (line.some((el) => el === null)) return null;
-    // console.log({ direction, currentCellAddress, line });
     return line;
   }
 
   /**
-   * Generate all potential victory lines as arrays of cells
+   * Generate all potential victory lines as arrays of cell addresses
    * algorithm:
    * - for each cell, generate arrays of lines of cells going right, down,
    * diagonal up-right, and diagonal down-right of length winningLineLength
    */
   initializeVictoryLines() {
     const directions = Object.keys(Board.directionVectors);
-    const allLines = Object.keys(this.state).reduce((outputArr, cell) => {
-      const lines = directions.map((dir) => this.getLine(dir, cell))
-        .filter((el) => el !== null);
+    const allLines = Object.keys(this.state).reduce((outputArr, cellAddress) => {
+      const lines = directions.map((dir) => this.getLine(dir, cellAddress))
+        .filter((line) => line !== null);
       return outputArr.concat(lines);
     }, []);
     this.victoryLines = allLines;
@@ -125,20 +126,95 @@ class Board {
     return this.state[winningLine[0]];
   }
 
-  render() {
-
+  // for even-length arrays, returns the first of the two indices at the center
+  static #middleIndex(arr) {
+    return Math.ceil(arr.length / 2 - 1);
   }
 
-  getEmptyCells() {
+  centerCell() {
+    const middleIndex = Board.#middleIndex(this.labels.rows);
+    return this.labels.rows[middleIndex] + this.labels.columns[middleIndex];
+  }
+
+  #rowToString(rowValues) {
+    const spaceChar = ' ';
+    const cellWidth = this.cellSideLength * constants.BOARD_CELL_WIDTH_MULT;
+    const stringComponents = rowValues.map(({ value }) => {
+      const segment = Array(cellWidth).fill(spaceChar);
+      segment.splice(Board.#middleIndex(segment), 1, value);
+      return segment.join('');
+    });
+
+    const joined = stringComponents.join(constants.BOARD_COLUMN_SEPARATOR);
+    return joined;
+  }
+
+  #boardCharWidth() {
+    const cellCharWidth = this.cellSideLength * constants.BOARD_CELL_WIDTH_MULT;
+    return (this.sideLength + 1) * cellCharWidth + this.sideLength;
+  }
+
+  #boardRowToString(boardRow) {
+    const spaceChar = ' ';
+    // const cellCharWidth = this.cellSideLength * constants.BOARD_CELL_WIDTH_MULT;
+    // const boardCharWidth = this.sideLength * cellCharWidth;
+
+    const spaces = new Array(this.sideLength + 1).fill({ address: '', value: spaceChar });
+    const spaceLineString = this.#rowToString(spaces);
+    const renderLines = new Array(this.cellSideLength).fill(spaceLineString);
+
+    const rowLabel = boardRow[0].address.split('')[0];
+    const rowWithLabel = [{ address: 'label', value: rowLabel }, ...boardRow];
+    const rowString = this.#rowToString(rowWithLabel);
+
+    renderLines[Board.#middleIndex(renderLines)] = rowString;
+    return renderLines;
+  }
+
+  #insertRowSeparators(boardRowStrings) {
+    const rowSeparatorLine = constants.BOARD_ROW_SEPARATOR.repeat(this.#boardCharWidth());
+    for (let i = boardRowStrings.length; i >= 0; i -= 1) {
+      boardRowStrings.splice(i, 0, rowSeparatorLine);
+    }
+  }
+
+  getDisplayStrings() {
+    const columnLabels = [' '].concat(this.labels.columns);
+    const columnLabelString = this.#rowToString(columnLabels.map((label) => ({ address: '', value: label })));
+    const renderRows = [columnLabelString];
+
+    const boardRows = this.getStateEntries().reduce((rowObj, [address, value]) => {
+      const rowLabel = address.split('')[0];
+      const item = { address, value };
+      if (rowLabel in rowObj) {
+        rowObj[rowLabel].push(item);
+      } else {
+        Object.assign(rowObj, { [rowLabel]: [item] });
+      }
+      return rowObj;
+    }, {});
+
+    const boardRowStrings = Object.values(boardRows).map(this.#boardRowToString.bind(this));
+    this.#insertRowSeparators(boardRowStrings);
+    renderRows.push(...boardRowStrings.flat(Infinity));
+    return renderRows;
+  }
+
+  display() {
+    const renderRows = this.getDisplayStrings();
+    renderRows.forEach((row) => console.log(row));
+  }
+
+  isEmptyCell(address) {
+    return this.state[address] === this.emptyCellValue;
+  }
+
+  getEmptyCellEntries() {
     return this.getStateEntries(true).filter((cell) => cell[1] === this.emptyCellValue);
   }
 
-  boardIsFull() {
-    return this.getEmptyCells().length === 0;
-  }
-
-  gameIsOver() {
-    return this.boardIsFull || this.winningShape();
+  isFull() {
+    return this.getEmptyCellEntries().length === 0;
   }
 }
 

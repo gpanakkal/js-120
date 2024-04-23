@@ -1,4 +1,6 @@
-const { Board } = require("./Board");
+const { Board } = require('./Board');
+const { ComputerPlayer } = require('./ComputerPlayer');
+const constants = require('./constants.json');
 
 /**
  * Given a set of game rules, initialize and manage a match
@@ -18,15 +20,33 @@ class Match {
    */
   play() {
     this.randomizeTurnOrder();
-    const getNextIndex = (current) => current + 1 >= this.players.length ? 0 : current + 1;
+    const getNextIndex = (current) => (current + 1 >= this.players.length ? 0 : current + 1);
+    let index = 0;
+
+    while (!this.gameIsOver) {
+      const currentPlayer = this.players[index];
+      console.log(`${currentPlayer.displayName()}'s turn`);
+      if (currentPlayer instanceof ComputerPlayer) {
+        this.board.state = currentPlayer.makeMove();
+      } else {
+        this.board.state = this.getHumanMove(currentPlayer);
+      }
+      index = getNextIndex(index);
+    }
+  }
+
+  getHumanMove(player) {
+    const validMoves = this.board.getEmptyCellEntries();
+    const invalidMoveMsgCb = (input) => `${input} is invalid. Available cells: ${validMoves.join(', ')}`;
+    return player.getMoveInput(this.board, constants.HUMAN_PLAY_TURN_PROMPT, invalidMoveMsgCb);
   }
 
   randomizeTurnOrder() {
-    this.players.sort((a, b) => Math.random() - Math.random());
+    this.players.sort(() => Math.random() - Math.random());
   }
 
-  gameOver() {
-
+  gameIsOver() {
+    return this.board.isFull() || this.board.winningShape();
   }
 }
 
