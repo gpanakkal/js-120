@@ -1,6 +1,6 @@
 const { question } = require('readline-sync');
+const constants = require('./constants.json');
 /**
- * 
  */
 class Player {
   constructor(name, marker) {
@@ -13,8 +13,7 @@ class Player {
   }
 }
 
-class computerPlayer extends Player {
-  
+class ComputerPlayer extends Player {
   makeMove() {
     // if there is a winning move, make it
     // else if an opponent has a winning move, block it
@@ -23,12 +22,12 @@ class computerPlayer extends Player {
   }
 }
 
-class humanPlayer extends Player {
+class HumanPlayer extends Player {
   getValidInput(promptMsg, invalidInputMsgCb, testCallback) {
     console.log(promptMsg);
     let userInput = question(constants.INPUT_PROMPT);
     while (!testCallback(userInput)) {
-      const invalidInputMsg = invalidInputMsgCb ? invalidInputMsgCb(userInput) 
+      const invalidInputMsg = invalidInputMsgCb ? invalidInputMsgCb(userInput)
         : `Input ${userInput} is invalid`;
       console.log(invalidInputMsg);
       console.log(promptMsg);
@@ -38,7 +37,6 @@ class humanPlayer extends Player {
   }
 
   getNumberInput(min, max, defaultValue, promptMsg, invalidInputMsgCb) {
-    
     const inputValidator = (input) => {
       const isWithinBounds = Number(input) >= min && Number(input) <= max;
       const noValuePassed = String(input).trim() === '';
@@ -49,28 +47,28 @@ class humanPlayer extends Player {
 
     return userInput.trim() === '' ? defaultValue : Number(userInput.trim());
   }
+
   /**
-   * 
    * @returns A string between MinLength and maxLength inclusive,
    * or the default value if the user provides empty input
    */
   getTextInput(minLength, maxLength, defaultValue, promptMsg, invalidInputMsgCb) {
     const noInputPassed = (input) => input.trim.length === 0;
-    const isValidInput = (input) => (noInputPassed(input) || (input.length >= minLength && input.length <= maxLength));
+    const isValidInput = (input) => (noInputPassed(input)
+      || (input.length >= minLength && input.length <= maxLength));
     const userInput = this.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
     return noInputPassed(userInput) ? defaultValue : userInput;
   }
 
   /**
-   * 
    * @returns true if the user chose (y)es,
    * false if the user chose (n)o,
    * or the default value if the user provides empty input
    */
   getBooleanInput(defaultValue, promptMsg, invalidInputMsgCb) {
     const noInputPassed = (input) => input.trim.length === 0;
-    const partialMatch = (input, value) => value.startsWith(input.toLowerCase()); 
-    
+    const partialMatch = (input, value) => value.startsWith(input.toLowerCase());
+
     const isValidInput = (input) => (noInputPassed(input) || partialMatch(input, 'yes') || partialMatch(input, 'no'));
 
     const userInput = this.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
@@ -91,15 +89,15 @@ class humanPlayer extends Player {
     const letterNumberPattern = new RegExp(`^[${validColumnLabels.join('')}][${validRowLabels.join('')}]$`, 'i');
     const numberLetterPattern = new RegExp(`^[${validRowLabels.join('')}][${validColumnLabels.join('')}]$`, 'i');
 
-  const isValidMove = (input) => letterNumberPattern.test(input.replaceAll(/\s/g, '')) 
-    || numberLetterPattern.test(input.replaceAll(/\s/g, ''));
+    const isValidMove = (input) => letterNumberPattern.test(input.replaceAll(/\s/g, ''))
+      || numberLetterPattern.test(input.replaceAll(/\s/g, ''));
 
-    const userInput =  this.getValidInput(promptMsg, invalidInputMsgCb, isValidMove);
+    const userInput = this.getValidInput(promptMsg, invalidInputMsgCb, isValidMove);
     const inputChars = userInput.toUpperCase().split('');
-    const rowLabel = inputChars.filter(char => validRowLabels.includes(char));
-    const columnLabel = inputChars.filter(char => validColumnLabels.includes(char));
+    const rowLabel = inputChars.filter((char) => validRowLabels.includes(char));
+    const columnLabel = inputChars.filter((char) => validColumnLabels.includes(char));
     return { row: rowLabel, col: columnLabel };
   }
 }
 
-module.exports = { computerPlayer, humanPlayer };
+module.exports = { ComputerPlayer, HumanPlayer };

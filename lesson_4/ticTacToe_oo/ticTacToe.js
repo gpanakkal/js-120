@@ -17,7 +17,6 @@ class TicTacToeGame {
     const match = new Match(this.rules);
     match.play();
   }
-
 }
 
-new TicTacToeGame.play();
+// const game = new TicTacToeGame();

@@ -1,80 +1,128 @@
 const constants = require('./constants.json');
 
-class Cell {
-  constructor(rowLabel, columnLabel, value) {
-    this.row = rowLabel;
-    this.col = columnLabel;
-    this.val = value;
-  }
-}
+// class Cell {
+//   constructor(rowLabel, columnLabel, value) {
+//     this.row = rowLabel;
+//     this.col = columnLabel;
+//     this.val = value;
+//   }
+// }
 /**
  * Update and display the game board
  */
 class Board {
+  #state;
+
+  static directionVectors = {
+    right: [1, 0],
+    down: [0, 1],
+    diagonalUp: [1, -1],
+    diagonalDown: [1, 1],
+  };
+
   constructor(sideLength, winningLineLength) {
-    this.emptyCellValue = ' ';
+    this.emptyCellValue = constants.BOARD_EMPTY_CELL_SHAPE;
     this.sideLength = sideLength;
+    this.labels = {
+      rows: constants.BOARD_ROW_LABELS.slice(0, this.sideLength),
+      columns: constants.BOARD_COLUMN_LABELS.slice(0, this.sideLength),
+    };
     this.winningLineLength = winningLineLength;
     this.initializeState();
-    
+    this.initializeVictoryLines();
     // console.log({board: this});
   }
 
-  getLabels() {
-    const rowLabels = constants.BOARD_ROW_LABELS.slice(0, this.sideLength);
-    const columnLabels = constants.BOARD_COLUMN_LABELS.slice(0, this.sideLength);
-    return {rowLabels, columnLabels};
-  }
-
+  /**
+   * Set up the game board and all winning combinations
+   */
   initializeState() {
-    const { rowLabels, columnLabels } = this.getLabels();
+    const mapRowCells = (rowLabel, columnLabel) => ({ [`${rowLabel}${columnLabel}`]: this.emptyCellValue });
 
-    const mapRowCells = (rowLabel, columnLabel) => ({[`${rowLabel}${columnLabel}`]: this.emptyCellValue});
-
-    const cells = rowLabels.map((rowLabel) => columnLabels
+    const cells = this.labels.rows.map((rowLabel) => this.labels.columns
       .map((columnLabel) => mapRowCells.call(this, rowLabel, columnLabel))
-      .reduce((rowObj, cell) => Object.assign(rowObj, cell), {}))
-      // .flat(Infinity);
-    console.log({cells});
-    // this._state = cells;
-    this._state = cells.reduce((obj, cell) => Object.assign(obj, cell), {});
+      .reduce((rowObj, cell) => Object.assign(rowObj, cell), {}));
+    this.#state = cells.reduce((obj, cell) => Object.assign(obj, cell), {});
   }
 
   get state() {
-    return this._state;
-  }
-
-  getStateEntries() {
-    return Object.entries(this.state);
+    return this.#state;
   }
 
   // given a formatted cell, update state
   set state(cell) {
-    const {row, col, val} = cell;
+    const { row, col, val } = cell;
     const address = `${row}${col}`;
-    this._state[address] = val;
+    this.#state[address] = val;
   }
 
-  // generate all winning lines as arrays of cells
-  winningLines() {
-    const { rowLabels, columnLabels } = this.getLabels();
-    const getCombos = (arr, len) => arr.reduce((combos, el, idx) => {
-      const slice = arr.slice(idx, idx + len);
-      if (slice.length !== len) return combos;
-      combos.push(slice);
-      return combos;
+  getStateEntries() {
+    return Object.entries(this.#state);
+  }
+
+  static getVector(direction, magnitude) {
+    if (!(direction in Board.directionVectors)) return undefined;
+    return Board.directionVectors[direction].map((comp) => comp * magnitude);
+  }
+
+  /**
+   * Fetches the cell address at an offset relative to the current cell
+   * @param {number[]} offsetVector a 2-tuple of vector components
+   * @param {string} currentCellAddress The address of the current cell as a string, e.g., "1M"
+   */
+  getOtherCell(offsetVector, currentCellAddress) {
+    const [x, y] = offsetVector;
+    const [cellRow, cellColumn] = currentCellAddress.split('');
+    const { rows: rowLabels, columns: columnLabels } = this.labels;
+
+    const currentY = rowLabels.indexOf(cellRow);
+    const currentX = columnLabels.indexOf(cellColumn);
+
+    const nextCellRow = rowLabels[currentY + y];
+    const nextCellColumn = columnLabels[currentX + x];
+    if (!nextCellRow || !nextCellColumn) return null;
+    return `${nextCellRow}${nextCellColumn}`;
+  }
+
+  // get a line of cell addresses of length winningLineLength
+  getLine(direction, currentCellAddress) {
+    const line = new Array(this.winningLineLength).fill(null).map((_, idx) => {
+      const offset = Board.getVector(direction, idx);
+      return this.getOtherCell(offset, currentCellAddress);
+    });
+    if (line.some((el) => el === null)) return null;
+    // console.log({ direction, currentCellAddress, line });
+    return line;
+  }
+
+  /**
+   * Generate all potential victory lines as arrays of cells
+   * algorithm:
+   * - for each cell, generate arrays of lines of cells going right, down,
+   * diagonal up-right, and diagonal down-right of length winningLineLength
+   */
+  initializeVictoryLines() {
+    const directions = Object.keys(Board.directionVectors);
+    const allLines = Object.keys(this.state).reduce((outputArr, cell) => {
+      const lines = directions.map((dir) => this.getLine(dir, cell))
+        .filter((el) => el !== null);
+      return outputArr.concat(lines);
     }, []);
-
-    const winningRowLabelCombos = getCombos(rowLabels, this.winningLineLength);
-    const winningColLabelCombos = getCombos(columnLabels, this.winningLineLength);
-
-    // for each row label, get lines of columns
-    const 
+    this.victoryLines = allLines;
   }
 
-  // a winning is filled with a single shape
-  WinnerExists() {
+  // return a shape if a winning line is filled with a single shape; else return false
+  winningShape() {
+    const isWinningLine = (line) => {
+      const lineValues = line.map((cellAddress) => this.state[cellAddress]);
+      const noEmptyCells = lineValues.every((value) => value !== this.emptyCellValue);
+      const valuesAreHomogenous = new Set(lineValues).size === 1;
+      return noEmptyCells && valuesAreHomogenous;
+    };
 
+    const winningLine = this.victoryLines.filter(isWinningLine)[0];
+    if (!winningLine) return false;
+    return this.state[winningLine[0]];
   }
 
   render() {
@@ -82,13 +130,16 @@ class Board {
   }
 
   getEmptyCells() {
-    return this.getState(true).filter((cell) => cell.value === this.emptyCellValue);
+    return this.getStateEntries(true).filter((cell) => cell[1] === this.emptyCellValue);
   }
 
   boardIsFull() {
     return this.getEmptyCells().length === 0;
   }
 
+  gameIsOver() {
+    return this.boardIsFull || this.winningShape();
+  }
 }
 
 module.exports = { Board };
