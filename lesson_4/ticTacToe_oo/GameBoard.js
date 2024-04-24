@@ -1,6 +1,6 @@
 const constants = require('./constants.json');
 
-class Board {
+class GameBoard {
   #state;
 
   static directionVectors = {
@@ -21,8 +21,8 @@ class Board {
     };
 
     this.winningLineLength = winningLineLength;
-    this.initializeState();
-    this.initializeVictoryLines();
+    this.#state = this.initializeState();
+    this.victoryLines = this.initializeVictoryLines();
   }
 
   /**
@@ -34,7 +34,7 @@ class Board {
     const cells = this.labels.rows.map((rowLabel) => this.labels.columns
       .map((columnLabel) => mapRowCells.call(this, rowLabel, columnLabel))
       .reduce((rowObj, cell) => Object.assign(rowObj, cell), {}));
-    this.#state = cells.reduce((obj, cell) => Object.assign(obj, cell), {});
+    return cells.reduce((obj, cell) => Object.assign(obj, cell), {});
   }
 
   get state() {
@@ -53,8 +53,8 @@ class Board {
   }
 
   static getVector(direction, magnitude) {
-    if (!(direction in Board.directionVectors)) return undefined;
-    return Board.directionVectors[direction].map((comp) => comp * magnitude);
+    if (!(direction in GameBoard.directionVectors)) return undefined;
+    return GameBoard.directionVectors[direction].map((comp) => comp * magnitude);
   }
 
   /**
@@ -79,7 +79,7 @@ class Board {
   // get a line of cell addresses of length winningLineLength
   getLine(direction, currentCellAddress) {
     const line = new Array(this.winningLineLength).fill(null).map((_, idx) => {
-      const offset = Board.getVector(direction, idx);
+      const offset = GameBoard.getVector(direction, idx);
       return this.getOtherCell(offset, currentCellAddress);
     });
     if (line.some((el) => el === null)) return null;
@@ -93,17 +93,18 @@ class Board {
    * diagonal up-right, and diagonal down-right of length winningLineLength
    */
   initializeVictoryLines() {
-    const directions = Object.keys(Board.directionVectors);
+    const directions = Object.keys(GameBoard.directionVectors);
     const allLines = Object.keys(this.state).reduce((outputArr, cellAddress) => {
       const lines = directions.map((dir) => this.getLine(dir, cellAddress))
         .filter((line) => line !== null);
       return outputArr.concat(lines);
     }, []);
-    this.victoryLines = allLines;
+    // console.log({ allLines });
+    return allLines;
   }
 
-  // return a shape if a winning line is filled with a single shape; else return null
-  winningShape() {
+  // return a marker if a winning line is filled with a single marker; else return null
+  winningMarker() {
     const isWinningLine = (line) => {
       const lineValues = line.map((cellAddress) => this.state[cellAddress]);
       const noEmptyCells = lineValues.every((value) => value !== this.emptyCellValue);
@@ -122,16 +123,17 @@ class Board {
   }
 
   centerCell() {
-    const middleIndex = Board.#middleIndex(this.labels.rows);
+    const middleIndex = GameBoard.#middleIndex(this.labels.rows);
     return this.labels.rows[middleIndex] + this.labels.columns[middleIndex];
   }
 
   #rowToString(rowValues) {
     const spaceChar = ' ';
     const cellWidth = this.cellSideLength * constants.BOARD_CELL_WIDTH_MULT;
+
     const stringComponents = rowValues.map(({ value }) => {
       const segment = Array(cellWidth).fill(spaceChar);
-      segment.splice(Board.#middleIndex(segment), 1, value);
+      segment.splice(GameBoard.#middleIndex(segment), 1, value);
       return segment.join('');
     });
 
@@ -141,7 +143,8 @@ class Board {
 
   #boardCharWidth() {
     const cellCharWidth = this.cellSideLength * constants.BOARD_CELL_WIDTH_MULT;
-    return (this.sideLength + 1) * cellCharWidth + this.sideLength;
+    const rowLabelWidth = constants.BOARD_CELL_WIDTH_MULT;
+    return this.sideLength * cellCharWidth + rowLabelWidth + 9;
   }
 
   #boardRowToString(boardRow) {
@@ -157,7 +160,7 @@ class Board {
     const rowWithLabel = [{ address: 'label', value: rowLabel }, ...boardRow];
     const rowString = this.#rowToString(rowWithLabel);
 
-    renderLines[Board.#middleIndex(renderLines)] = rowString;
+    renderLines[GameBoard.#middleIndex(renderLines)] = rowString;
     return renderLines;
   }
 
@@ -168,12 +171,8 @@ class Board {
     }
   }
 
-  getDisplayStrings() {
-    const columnLabels = [' '].concat(this.labels.columns);
-    const columnLabelString = this.#rowToString(columnLabels.map((label) => ({ address: '', value: label })));
-    const renderRows = [columnLabelString];
-
-    const boardRows = this.getStateEntries().reduce((rowObj, [address, value]) => {
+  #boardRowsFromEntries() {
+    return this.getStateEntries().reduce((rowObj, [address, value]) => {
       const rowLabel = address.split('')[0];
       const item = { address, value };
       if (rowLabel in rowObj) {
@@ -183,7 +182,14 @@ class Board {
       }
       return rowObj;
     }, {});
+  }
 
+  getDisplayLines() {
+    const columnLabels = [' '].concat(this.labels.columns);
+    const columnLabelString = this.#rowToString(columnLabels.map((label) => ({ address: '', value: label })));
+
+    const renderRows = [columnLabelString];
+    const boardRows = this.#boardRowsFromEntries();
     const boardRowStrings = Object.values(boardRows).map(this.#boardRowToString.bind(this));
     this.#insertRowSeparators(boardRowStrings);
     renderRows.push(...boardRowStrings.flat(Infinity));
@@ -191,7 +197,7 @@ class Board {
   }
 
   display() {
-    const renderRows = this.getDisplayStrings();
+    const renderRows = this.getDisplayLines();
     renderRows.forEach((row) => console.log(row));
   }
 
@@ -203,9 +209,13 @@ class Board {
     return this.getStateEntries(true).filter((cell) => cell[1] === this.emptyCellValue);
   }
 
+  getEmptyCellNames() {
+    return this.getEmptyCellEntries().map((entry) => entry[0]);
+  }
+
   isFull() {
     return this.getEmptyCellEntries().length === 0;
   }
 }
 
-module.exports = { Board };
+module.exports = { GameBoard };

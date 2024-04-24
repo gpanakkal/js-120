@@ -1,3 +1,5 @@
+const constants = require('./constants.json');
+
 class Player {
   constructor(name, marker) {
     this.name = name;
@@ -6,6 +8,11 @@ class Player {
 
   displayName() {
     return `${this.name} (${this.marker})`;
+  }
+
+  getFormattedMove(cellAddress) {
+    const [rowLabel, columnLabel] = cellAddress.split('');
+    return { row: rowLabel, col: columnLabel, val: this.marker };
   }
 }
 

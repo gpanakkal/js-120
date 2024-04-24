@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const { Board } = require('./Board');
+const { GameBoard } = require('./GameBoard');
 const { GameRules } = require('./GameRules');
 const { TicTacToeGame } = require('./ticTacToe');
 
@@ -8,14 +8,14 @@ const { TicTacToeGame } = require('./ticTacToe');
 
 const boardLength = 3;
 const winningLineLength = 3;
-const board = new Board(boardLength, winningLineLength);
+const board = new GameBoard(boardLength, winningLineLength);
 // console.log({ state: board.state });
 
 const currentCell = '3M';
-const rightVector = Board.getVector('right', 2);
-const downVector = Board.getVector('down', 2);
-const diagonalUpVector = Board.getVector('diagonalUp', 2);
-const diagonalDownVector = Board.getVector('diagonalDown', 2);
+const rightVector = GameBoard.getVector('right', 2);
+const downVector = GameBoard.getVector('down', 2);
+const diagonalUpVector = GameBoard.getVector('diagonalUp', 2);
+const diagonalDownVector = GameBoard.getVector('diagonalDown', 2);
 
 // console.log({
 //   rightVector, downVector, diagonalUpVector, diagonalDownVector,
@@ -33,7 +33,7 @@ const otherCells = {
 
 // console.log({ victoryLines: board.victoryLines, count: board.victoryLines.length });
 
-const secondBoard = new Board(boardLength, winningLineLength);
+const secondBoard = new GameBoard(boardLength, winningLineLength);
 const stateComparison = {
   sameState: board.state === secondBoard.state,
   firstState: board.state,
@@ -51,6 +51,6 @@ console.log({ state: board.state });
 const cellAddress = '1M';
 // console.log({ valueAt1M: board.state[cellAddress] });
 
-console.log({ winningShape: board.winningShape() });
+console.log({ winningShape: board.winningMarker() });
 
 board.display();

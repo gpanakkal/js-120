@@ -19,11 +19,16 @@
   "MIN_HUMAN_PLAYER_COUNT": 1,
   "DEFAULT_HUMAN_BASE_NAME": "Human",
   "COMPUTER_BASE_NAME": "Computer",
+  "DRAW_OUTCOME_NAME": "draw",
   "BASE_NAME_MAX_LENGTH": 15,
   "BASE_NAME_MIN_LENGTH": 2,
   "PLAYER_MARKERS": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
 
   "INPUT_PROMPT_PREFIX": "==> ",
   "HUMAN_PLAY_TURN_PROMPT": "Enter the address of an available cell, e.g., '1M'",
-  "PLAY_AGAIN_PROMPT": "Play again with the same rules? y / n"
+  "PLAY_AGAIN_PROMPT": "Play again with the same rules? y / n",
+
+  "RENDERER_ELEMENT_PADDING": 2,
+  "RENDERER_ACTION_LOG_TTTLE": "Action History",
+  "RENDERER_SCOREBOARD_TTTLE": "Scoreboard"
 }
