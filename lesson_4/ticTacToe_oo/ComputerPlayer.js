@@ -49,35 +49,48 @@ class ComputerPlayer extends Player {
     return opponentWinningMoves;
   }
 
+  static threatLinesPerCell(threatLines) {
+    return threatLines.reduce((obj, threatLine) => {
+      threatLine.forEach((cell) => {
+        if (cell in obj) obj[cell] += 1;
+        else obj[cell] = 1;
+      });
+      return obj;
+    }, {});
+  }
+
+  findBestNonWinningMove(board) {
+    const winningLineLength = board.victoryLines[0].length;
+    for (let i = 2; i <= winningLineLength; i += 1) {
+      const partialThreatLines = ComputerPlayer.threatLines(board, this.marker, i);
+      if (partialThreatLines.length === 0) continue;
+      const threatLinesPerCell = ComputerPlayer.threatLinesPerCell(partialThreatLines);
+      const sortedOptions = Object.keys(threatLinesPerCell).sort((a, b) => threatLinesPerCell[b] - threatLinesPerCell[a]);
+      return sortedOptions[0];
+    }
+  }
+
+  /**
+   * Choose the cell leading to a win in the fewest moves,
+   * and belonging to the most winning combinations.
+   */
+  static findRandomMove(availableCells) {
+    const randomIndex = Math.floor(Math.random() * availableCells.length);
+    return availableCells[randomIndex];
+  }
+
   makeMove(board, players) {
     let cell;
     const availableCells = board.getEmptyCellNames(board.state);
     const winningMoves = ComputerPlayer.threatLines(board, this.marker);
     const opponentWinningMoves = this.#opponentWinningMoves(board, players);
-    // if there is a winning move, make it
     if (winningMoves.length > 0) {
       cell = ComputerPlayer.firstThreatCell(board, winningMoves);
     }
-    // else if an opponent has a winning move, block it
     else if (opponentWinningMoves.length > 0) {
       cell = ComputerPlayer.firstThreatCell(board, opponentWinningMoves);
-    }
-    // const winningLineLength = board.victoryLines[0].length;
-    // // else choose a cell leading to a win in the fewest moves,
-    // // sorted by number of winning triplets it belongs in
-    // for (let i = 2; i <= winningLineLength; i += 1) {
-    //   const partialThreatLines = ComputerPlayer.threatLines(board, this.marker, i);
-    //   const matchingEmptyCells = availableCells.filter((cell) => partialThreatLines.some((threatLine) => threatLine.includes(cell)));
-    // }
-
-    // else if the center is available, fill it
-    else if (availableCells.includes(board.centerCell())) {
-      cell = board.centerCell();
-    }
-    // else fill a random cell
-    else {
-      const randomIndex = Math.floor(Math.random() * availableCells.length);
-      cell = availableCells[randomIndex];
+    } else {
+      cell = this.findBestNonWinningMove(board) ?? ComputerPlayer.findRandomMove(availableCells);
     }
 
     console.log({ cell, move: this.getFormattedMove(cell) });
