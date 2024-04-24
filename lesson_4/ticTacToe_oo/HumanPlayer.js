@@ -23,7 +23,7 @@ class HumanPlayer extends Player {
       return isWithinBounds || noValuePassed;
     };
 
-    const userInput = Player.getValidInput(promptMsg, invalidInputMsgCb, inputValidator);
+    const userInput = HumanPlayer.getValidInput(promptMsg, invalidInputMsgCb, inputValidator);
 
     return userInput.trim() === '' ? defaultValue : Number(userInput.trim());
   }
@@ -36,7 +36,7 @@ class HumanPlayer extends Player {
     const noInputPassed = (input) => input.trim.length === 0;
     const isValidInput = (input) => (noInputPassed(input)
       || (input.length >= minLength && input.length <= maxLength));
-    const userInput = Player.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
+    const userInput = HumanPlayer.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
     return noInputPassed(userInput) ? defaultValue : userInput;
   }
 
@@ -51,7 +51,7 @@ class HumanPlayer extends Player {
 
     const isValidInput = (input) => (noInputPassed(input) || partialMatch(input, 'yes') || partialMatch(input, 'no'));
 
-    const userInput = Player.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
+    const userInput = HumanPlayer.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
 
     return noInputPassed(userInput) ? defaultValue : userInput;
   }
@@ -61,27 +61,27 @@ class HumanPlayer extends Player {
    * in either order, ignoring spaces. Returns an object
    * of the parsed row and column labels
    */
-  static getMoveInput(board, promptMsg, invalidInputMsgCb) {
-    const { rowLabels, columnLabels } = board.labels;
-    const validCells = board.getEmptyCells();
+  getMoveInput(board, promptMsg, invalidInputMsgCb) {
+    const { rows: rowLabels, columns: columnLabels } = board.labels;
+    const validCells = board.getEmptyCellEntries().map((entry) => entry[0]);
 
     const isValidMove = (input) => {
       const columnRegex = new RegExp(`[${columnLabels.join('')}]`, 'i');
       const rowRegex = new RegExp(`[${rowLabels.join('')}]`, 'i');
 
       const chars = input.replaceAll(/\s+/g, '').split('');
-      const column = chars.filter((char) => columnRegex.test(char)).toUpperCase();
-      const row = chars.filter((char) => rowRegex.test(char)).toUpperCase();
+      const column = chars.filter((char) => columnRegex.test(char)).join('').toUpperCase();
+      const row = chars.filter((char) => rowRegex.test(char)).join('').toUpperCase();
 
       const address = row + column;
       return validCells.includes(address);
     };
 
-    const userInput = Player.getValidInput(promptMsg, invalidInputMsgCb, isValidMove);
+    const userInput = HumanPlayer.getValidInput(promptMsg, invalidInputMsgCb, isValidMove);
     const inputChars = userInput.toUpperCase().split('');
     const rowLabel = inputChars.filter((char) => rowLabels.includes(char));
     const columnLabel = inputChars.filter((char) => columnLabels.includes(char));
-    return { row: rowLabel, col: columnLabel };
+    return { row: rowLabel, col: columnLabel, val: this.marker };
   }
 }
 

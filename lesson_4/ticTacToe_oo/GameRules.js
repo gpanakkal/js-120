@@ -17,28 +17,29 @@ class GameRules {
 
     const playerMarkers = constants.PLAYER_MARKERS;
     const firstHuman = new HumanPlayer(constants.DEFAULT_HUMAN_BASE_NAME, playerMarkers.shift());
-    firstHuman.name = GameRules.promptHumanPlayerName(firstHuman);
+    console.log({ firstHuman });
+    firstHuman.name = GameRules.promptHumanPlayerName();
     this.players.push(firstHuman);
-    const useDefaults = GameRules.promptUseDefaults(firstHuman);
+    const useDefaults = GameRules.promptUseDefaults();
     if (useDefaults) {
       this.initializeBoard(firstHuman);
     }
     this.initializePlayers(firstHuman, playerMarkers, useDefaults);
   }
 
-  static promptUseDefaults(humanPlayer) {
+  static promptUseDefaults() {
     const useDefaultsPrompt = '\nUse default Tic Tac Toe rules? (y)es / (n)o (default is "yes"):';
-    return humanPlayer.getBooleanInput(useDefaultsPrompt, useDefaultsPrompt);
+    return HumanPlayer.getBooleanInput(useDefaultsPrompt, useDefaultsPrompt);
   }
 
-  static promptBoardLength(humanPlayer) {
+  static promptBoardLength() {
     const minLength = constants.MIN_BOARD_LENGTH;
     const maxLength = constants.MAX_BOARD_LENGTH;
 
     const boardLengthPrompt = 'Choose the board\'s length on each side';
     const boardLengthLimits = `(At least ${minLength}, and at most ${maxLength})`;
     const fullPrompt = `${boardLengthPrompt} ${boardLengthLimits}:`;
-    return humanPlayer.getNumberInput(
+    return HumanPlayer.getNumberInput(
       minLength,
       maxLength,
       constants.DEFAULT_BOARD_LENGTH,
@@ -46,7 +47,7 @@ class GameRules {
     );
   }
 
-  promptWinningLineLength(firstHuman) {
+  promptWinningLineLength() {
     const min = constants.MIN_WINNING_LINE_LENGTH;
     const max = this.boardLength;
 
@@ -54,15 +55,15 @@ class GameRules {
     const defaultLineLengthPrompt = `(default ${constants.DEFAULT_WINNING_LINE_LENGTH})`;
     const fullPrompt = `${winningLineLengthPrompt} ${defaultLineLengthPrompt}:`;
 
-    return firstHuman.getNumber(min, max, constants.DEFAULT_WINNING_LINE_LENGTH, fullPrompt);
+    return HumanPlayer.getNumberInput(min, max, constants.DEFAULT_WINNING_LINE_LENGTH, fullPrompt);
   }
 
-  initializeBoard(firstHuman) {
-    this.boardLength = GameRules.promptBoardLength(firstHuman);
-    this.winningLineLength = this.promptWinningLineLength(firstHuman);
+  initializeBoard() {
+    this.boardLength = GameRules.promptBoardLength();
+    this.winningLineLength = this.promptWinningLineLength();
   }
 
-  static promptPlayerCount(firstHuman) {
+  static promptPlayerCount() {
     const min = constants.MIN_PLAYER_COUNT;
     const max = constants.MAX_PLAYER_COUNT;
     // if (min >= max) return min;
@@ -72,14 +73,14 @@ class GameRules {
     const useDefaultPrompt = `or press enter to use the default (${defaultPlayerCount})`;
     const fullPrompt = `${playerCountPrompt}, ${useDefaultPrompt}: `;
 
-    return firstHuman.getNumberInput(min, max, defaultPlayerCount, fullPrompt);
+    return HumanPlayer.getNumberInput(min, max, defaultPlayerCount, fullPrompt);
   }
 
   /**
    * @returns The user-provided number of human players,
    * bounded to the minimum human players and max total players (inclusive)
    */
-  static promptHumanPlayerCount(firstHuman, playerCount) {
+  static promptHumanPlayerCount(playerCount) {
     const min = constants.MIN_HUMAN_PLAYER_COUNT;
     const max = playerCount;
     // if (min === max) return min;
@@ -89,10 +90,10 @@ class GameRules {
     const useDefaultPrompt = `or press enter to use the default (${defaultHumanCount})`;
     const fullPrompt = `${playerCountPrompt}, ${useDefaultPrompt}: `;
 
-    return firstHuman.getNumberInput(min, max, defaultHumanCount, fullPrompt);
+    return HumanPlayer.getNumberInput(min, max, defaultHumanCount, fullPrompt);
   }
 
-  static promptHumanPlayerName(firstHuman) {
+  static promptHumanPlayerName() {
     const minLength = constants.BASE_NAME_MIN_LENGTH;
     const maxLength = constants.BASE_NAME_MAX_LENGTH;
     const defaultName = constants.DEFAULT_HUMAN_BASE_NAME;
@@ -101,7 +102,7 @@ class GameRules {
 
     const invalidNameCb = () => `Name must contain at least ${minLength} and at most ${maxLength} non-space characters`;
 
-    return firstHuman.getTextInput(
+    return HumanPlayer.getTextInput(
       minLength,
       maxLength,
       defaultName,
@@ -110,13 +111,13 @@ class GameRules {
     );
   }
 
-  initializePlayers(firstHuman, playerMarkers, useDefaults) {
+  initializePlayers(playerMarkers, useDefaults) {
     let playerCount = constants.DEFAULT_PLAYER_COUNT;
     let humanPlayerCount = constants.DEFAULT_HUMAN_PLAYER_COUNT;
 
     if (!useDefaults) {
-      playerCount = GameRules.promptPlayerCount(firstHuman);
-      humanPlayerCount = GameRules.promptHumanPlayerCount(firstHuman, playerCount);
+      playerCount = GameRules.promptPlayerCount();
+      humanPlayerCount = GameRules.promptHumanPlayerCount(playerCount);
     }
 
     const playersRemaining = this.players.length - playerCount;
@@ -128,7 +129,7 @@ class GameRules {
       let newPlayer = new ComputerPlayer(name, marker);
 
       if (humansRemaining) {
-        name = GameRules.promptHumanPlayerName(firstHuman, humanPlayerCount);
+        name = GameRules.promptHumanPlayerName(humanPlayerCount);
         newPlayer = new HumanPlayer(name, marker);
         humansRemaining -= 1;
       }

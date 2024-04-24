@@ -1,4 +1,5 @@
 const { Board } = require('./Board');
+const { HumanPlayer } = require('./HumanPlayer');
 const { ComputerPlayer } = require('./ComputerPlayer');
 const constants = require('./constants.json');
 
@@ -8,7 +9,6 @@ const constants = require('./constants.json');
  * Determine when the game has ended and display the result
  */
 class Match {
-
   constructor(rules) {
     this.board = new Board(rules.boardLength, rules.winningLineLength);
     this.players = rules.players;
@@ -25,7 +25,9 @@ class Match {
     const getNextIndex = (current) => (current + 1 >= this.players.length ? 0 : current + 1);
     let index = 0;
 
-    while (!this.gameIsOver) {
+    this.board.display();
+    while (!this.gameIsOver()) {
+      console.log(this.players)
       const currentPlayer = this.players[index];
       console.log(`${currentPlayer.displayName()}'s turn`);
       if (currentPlayer instanceof ComputerPlayer) {
@@ -33,17 +35,22 @@ class Match {
       } else {
         this.board.state = this.getHumanMove(currentPlayer);
       }
+      this.board.display();
       index = getNextIndex(index);
     }
 
     this.setWinner();
-    return { winner: this.setWinner, playAgain: this.promptPlayAgain() };
+    return { winner: this.setWinner, playAgain: Match.promptPlayAgain() };
   }
 
-  getHumanMove(player) {
+  getHumanMove(currentPlayer) {
     const validMoves = this.board.getEmptyCellEntries();
     const invalidMoveMsgCb = (input) => `${input} is invalid. Available cells: ${validMoves.join(', ')}`;
-    return player.getMoveInput(this.board, constants.HUMAN_PLAY_TURN_PROMPT, invalidMoveMsgCb);
+    return currentPlayer.getMoveInput(
+      this.board,
+      constants.HUMAN_PLAY_TURN_PROMPT,
+      invalidMoveMsgCb,
+    );
   }
 
   randomizeTurnOrder() {
@@ -59,9 +66,9 @@ class Match {
     this.winner = this.board.winningShape();
   }
 
-  promptPlayAgain() {
+  static promptPlayAgain() {
     const promptMsg = constants.PLAY_AGAIN_PROMPT;
-    const userInput = this.players[0].getBooleanInput('n', promptMsg).trim().toLowerCase().slice[0];
+    const userInput = HumanPlayer.getBooleanInput('n', promptMsg).trim().toLowerCase().slice[0];
     return userInput === 'y';
   }
 }
