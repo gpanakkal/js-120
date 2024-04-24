@@ -27,7 +27,7 @@ class Match {
 
     this.board.display();
     while (!this.gameIsOver()) {
-      console.log(this.players)
+      console.log(this.players);
       const currentPlayer = this.players[index];
       console.log(`${currentPlayer.displayName()}'s turn`);
       if (currentPlayer instanceof ComputerPlayer) {

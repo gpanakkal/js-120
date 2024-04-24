@@ -23,7 +23,7 @@
   "BASE_NAME_MIN_LENGTH": 2,
   "PLAYER_MARKERS": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
 
-  "INPUT_PROMPT_PREFIX": "==>",
+  "INPUT_PROMPT_PREFIX": "==> ",
   "HUMAN_PLAY_TURN_PROMPT": "Enter the address of an available cell, e.g., '1M'",
   "PLAY_AGAIN_PROMPT": "Play again with the same rules? y / n"
 }
