@@ -17,9 +17,9 @@ class ComputerPlayer extends Player {
     }, {});
   }
 
-  static getModalShapeEntry(nonEmptyEntries) {
-    const compareEntries = (entry, current) => (current[1] > entry[1] ? current : entry);
-    return nonEmptyEntries.reduce(compareEntries, nonEmptyEntries[0]);
+  static getModalShapeEntry(shapeFreqs) {
+    const shapeFreqEntries = Object.entries(shapeFreqs);
+    return shapeFreqEntries.toSorted((a, b) => b[1] - a[1])[0];
   }
 
   static threatLines(board, marker, maxEmptyCells = 1) {
@@ -29,8 +29,7 @@ class ComputerPlayer extends Player {
     const potentialThreatLines = board.victoryLines.filter((line) => {
       const shapeCounts = ComputerPlayer.countShapesInLine(board, line);
       const { empty: emptyCellCount, ...nonEmpty } = shapeCounts;
-      const nonEmptyEntries = Object.entries(nonEmpty);
-      const [modalShape, modalShapeCount] = ComputerPlayer.getModalShapeEntry(nonEmptyEntries);
+      const [modalShape, modalShapeCount] = ComputerPlayer.getModalShapeEntry(nonEmpty);
       const correctMarker = modalShape === marker;
       const enoughCellsEmpty = emptyCellCount <= maxCellsRemaining;
       const enoughCellsFilled = modalShapeCount + maxCellsRemaining >= winningLineLength;
