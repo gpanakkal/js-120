@@ -44,11 +44,10 @@ class Match {
   
     randomizeTurnOrder() {
       this.players.sort(() => Math.random() - Math.random());
-      console.log({ turnOrder: this.players.map((player) => player.displayName()) });
+      // console.log({ turnOrder: this.players.map((player) => player.displayName()) });
     }
 
   playTurn(currentPlayer) {
-    console.log(`${currentPlayer.displayName()}'s turn`);
     const isComputer = currentPlayer instanceof ComputerPlayer;
     let move = isComputer ? currentPlayer.makeMove(this.board, this.players) 
       : this.getHumanMove(currentPlayer);

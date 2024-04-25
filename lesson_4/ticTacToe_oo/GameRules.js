@@ -102,7 +102,7 @@ class GameRules {
     const maxLength = constants.BASE_NAME_MAX_LENGTH;
     const defaultName = constants.DEFAULT_HUMAN_BASE_NAME;
 
-    const playerNamePrompt = `Player ${this.players.length + 1}: Enter the name you want to use (default ${defaultName}):`;
+    const playerNamePrompt = `Player ${this.players.length + 1}: Enter your name (default ${defaultName}):`;
 
     const invalidNameCb = () => `Name must contain at least ${minLength} and at most ${maxLength} non-space characters`;
 

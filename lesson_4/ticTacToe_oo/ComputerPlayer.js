@@ -21,7 +21,7 @@ class ComputerPlayer extends Player {
     const winningLineLength = board.victoryLines[0].length;
     const cellsRemaining = Math.min(winningLineLength, maxEmptyCells);
 
-    const threatLines = board.victoryLines.filter((line) => {
+    const potentialThreatLines = board.victoryLines.filter((line) => {
       const shapeCounts = ComputerPlayer.countShapesInLine(board, line);
       const { empty: emptyCellCount, ...nonEmpty } = shapeCounts;
 
@@ -31,8 +31,7 @@ class ComputerPlayer extends Player {
       return emptyCellCount <= cellsRemaining && nCellsShort && correctMarker;
     });
 
-    console.log({marker, threatLines});
-    return threatLines;
+    return potentialThreatLines;
   }
 
   static firstThreatCell(board, threatLines) {
@@ -59,41 +58,44 @@ class ComputerPlayer extends Player {
     }, {});
   }
 
+  /**
+   * Choose the cell leading to a win in the fewest moves,
+   * and belonging to the most winning combinations.
+   */
   findBestNonWinningMove(board) {
     const winningLineLength = board.victoryLines[0].length;
     for (let i = 2; i <= winningLineLength; i += 1) {
       const partialThreatLines = ComputerPlayer.threatLines(board, this.marker, i);
       if (partialThreatLines.length === 0) continue;
       const threatLinesPerCell = ComputerPlayer.threatLinesPerCell(partialThreatLines);
-      const sortedOptions = Object.keys(threatLinesPerCell).sort((a, b) => threatLinesPerCell[b] - threatLinesPerCell[a]);
-      return sortedOptions[0];
+      const maxLines = Math.max(...Object.values(threatLinesPerCell));
+      const bestOptions = Object.entries(threatLinesPerCell).filter(([address, count]) => count === maxLines).map(([address]) => address);
+      return ComputerPlayer.selectRandomCell(bestOptions);
     }
   }
 
-  /**
-   * Choose the cell leading to a win in the fewest moves,
-   * and belonging to the most winning combinations.
-   */
-  static findRandomMove(availableCells) {
+  static selectRandomCell(availableCells) {
     const randomIndex = Math.floor(Math.random() * availableCells.length);
     return availableCells[randomIndex];
   }
 
-  makeMove(board, players) {
-    let cell;
+  selectCell(board, players) {
     const availableCells = board.getEmptyCellNames(board.state);
     const winningMoves = ComputerPlayer.threatLines(board, this.marker);
     const opponentWinningMoves = this.#opponentWinningMoves(board, players);
-    if (winningMoves.length > 0) {
-      cell = ComputerPlayer.firstThreatCell(board, winningMoves);
-    }
-    else if (opponentWinningMoves.length > 0) {
-      cell = ComputerPlayer.firstThreatCell(board, opponentWinningMoves);
-    } else {
-      cell = this.findBestNonWinningMove(board) ?? ComputerPlayer.findRandomMove(availableCells);
-    }
 
-    console.log({ cell, move: this.getFormattedMove(cell) });
+    if (winningMoves.length > 0) {
+      return ComputerPlayer.firstThreatCell(board, winningMoves);
+    }
+    if (opponentWinningMoves.length > 0) {
+      return ComputerPlayer.firstThreatCell(board, opponentWinningMoves);
+    } 
+    return this.findBestNonWinningMove(board) ?? ComputerPlayer.selectRandomCell(availableCells);
+  }
+
+  makeMove(board, players) {
+    const cell = this.selectCell(board, players);
+  // console.log({ cell, move: this.getFormattedMove(cell) });
     return this.getFormattedMove(cell);
   }
 }

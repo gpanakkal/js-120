@@ -28,7 +28,11 @@
   "HUMAN_PLAY_TURN_PROMPT": "Enter the address of an available cell, e.g., '1M'",
   "PLAY_AGAIN_PROMPT": "Play again with the same rules? y / n",
 
-  "RENDERER_ELEMENT_PADDING": 2,
-  "RENDERER_ACTION_LOG_TTTLE": "Action History",
-  "RENDERER_SCOREBOARD_TTTLE": "Scoreboard"
+  "RENDERER": {
+    "ELEMENT_PADDING": 2,
+    "ACTION_LOG_TTTLE": "Action History",
+    "SCOREBOARD_TTTLE": "Scoreboard",
+    "ACTION_LOG_MIN_WIDTH": 25,
+    "SCOREBOARD_MIN_WIDTH": 25
+  }
 }

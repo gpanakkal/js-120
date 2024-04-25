@@ -1,4 +1,4 @@
-const constants = require('./constants.json');
+const { RENDERER } = require('./constants.json');
 /**
  * Display the game while a match is ongoing
  * 
@@ -48,7 +48,7 @@ class Renderer {
     this.match = match;
     this.gameBoard = match.board;
     this.scoreboard = scoreboard;
-    this.paddingString = ' '.repeat(constants.RENDERER_ELEMENT_PADDING);
+    this.paddingString = ' '.repeat(RENDERER.ELEMENT_PADDING);
   }
 
   get gameState() {
@@ -60,7 +60,7 @@ class Renderer {
 
   display() {
     const renderLines = this.getDisplayLines();
-    // console.clear();
+    console.clear();
     renderLines.forEach((line) => console.log(line));
   }
 
@@ -120,21 +120,23 @@ class Renderer {
     return renderLines;
   }
 
-  static centeringOffset(cell, str) {
-    return Math.floor((Renderer.gridCellWidth(cell) - str.length) / 2);
+  static centeringOffset(cell, str, minCellWidth) {
+    const cellWidth = Math.max(minCellWidth, Renderer.maxElementLength(cell));
+    return Math.floor((cellWidth - str.length) / 2);
+  }
+
+  static formatTitle(section, rawTitle, minCellWidth) {
+    const sectionTitleOffset = Renderer.centeringOffset(section, rawTitle, minCellWidth);
+    return rawTitle.padStart(sectionTitleOffset + rawTitle.length, ' ');
   }
 
   getStateWithTitles() {
     const { actionLog, gameBoard, scoreBoard } = this.gameState;
-    const rawActionLogTitle = constants.RENDERER_ACTION_LOG_TTTLE;
-    const actionLogTitle = rawActionLogTitle.padStart(Renderer.centeringOffset(actionLog, rawActionLogTitle), ' ');
-    actionLog.unshift(actionLogTitle);
-
-    const rawScoreBoardTitle = constants.RENDERER_SCOREBOARD_TTTLE;
-    const scoreBoardTitle = rawScoreBoardTitle.padStart(Renderer.centeringOffset(scoreBoard, rawScoreBoardTitle), ' ');
-    scoreBoard.unshift(scoreBoardTitle);
-
-    return { actionLog, gameBoard, scoreBoard }
+    const formattedActionLogTitle = Renderer.formatTitle(actionLog, RENDERER.ACTION_LOG_TTTLE, RENDERER.ACTION_LOG_MIN_WIDTH);
+    const formattedScoreBoardTitle = Renderer.formatTitle(scoreBoard, RENDERER.SCOREBOARD_TTTLE, RENDERER.SCOREBOARD_MIN_WIDTH);
+    actionLog.unshift(formattedActionLogTitle);
+    scoreBoard.unshift(formattedScoreBoardTitle);
+    return { actionLog, gameBoard, scoreBoard };
   }
 
   getDisplayLines() {
