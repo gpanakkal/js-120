@@ -17,18 +17,24 @@ class ComputerPlayer extends Player {
     }, {});
   }
 
-  static threatLines(board, marker = undefined, maxEmptyCells = 1) {
+  static getModalShapeEntry(nonEmptyEntries) {
+    const compareEntries = (entry, current) => (current[1] > entry[1] ? current : entry);
+    return nonEmptyEntries.reduce(compareEntries, nonEmptyEntries[0]);
+  }
+
+  static threatLines(board, marker, maxEmptyCells = 1) {
     const winningLineLength = board.victoryLines[0].length;
-    const cellsRemaining = Math.min(winningLineLength, maxEmptyCells);
+    const maxCellsRemaining = Math.min(winningLineLength, maxEmptyCells);
 
     const potentialThreatLines = board.victoryLines.filter((line) => {
       const shapeCounts = ComputerPlayer.countShapesInLine(board, line);
       const { empty: emptyCellCount, ...nonEmpty } = shapeCounts;
-
-      const nCellsShort = Math.max(...Object.values(nonEmpty)) === winningLineLength - cellsRemaining;
-
-      const correctMarker = marker !== undefined ? Object.keys(nonEmpty)[0] === marker : true;
-      return emptyCellCount <= cellsRemaining && nCellsShort && correctMarker;
+      const nonEmptyEntries = Object.entries(nonEmpty);
+      const [modalShape, modalShapeCount] = ComputerPlayer.getModalShapeEntry(nonEmptyEntries);
+      const correctMarker = modalShape === marker;
+      const enoughCellsEmpty = emptyCellCount <= maxCellsRemaining;
+      const enoughCellsFilled = modalShapeCount + maxCellsRemaining >= winningLineLength;
+      return correctMarker && enoughCellsEmpty && enoughCellsFilled;
     });
 
     return potentialThreatLines;
@@ -66,12 +72,16 @@ class ComputerPlayer extends Player {
     const winningLineLength = board.victoryLines[0].length;
     for (let i = 2; i <= winningLineLength; i += 1) {
       const partialThreatLines = ComputerPlayer.threatLines(board, this.marker, i);
-      if (partialThreatLines.length === 0) continue;
-      const threatLinesPerCell = ComputerPlayer.threatLinesPerCell(partialThreatLines);
-      const maxLines = Math.max(...Object.values(threatLinesPerCell));
-      const bestOptions = Object.entries(threatLinesPerCell).filter(([address, count]) => count === maxLines).map(([address]) => address);
-      return ComputerPlayer.selectRandomCell(bestOptions);
+
+      if (partialThreatLines.length > 0) {
+        const threatLinesPerCell = ComputerPlayer.threatLinesPerCell(partialThreatLines);
+        const maxLines = Math.max(...Object.values(threatLinesPerCell));
+        const bestOptions = Object.entries(threatLinesPerCell)
+          .filter(([, count]) => count === maxLines).map(([address]) => address);
+        return ComputerPlayer.selectRandomCell(bestOptions);
+      }
     }
+    return undefined;
   }
 
   static selectRandomCell(availableCells) {
@@ -89,13 +99,13 @@ class ComputerPlayer extends Player {
     }
     if (opponentWinningMoves.length > 0) {
       return ComputerPlayer.firstThreatCell(board, opponentWinningMoves);
-    } 
+    }
     return this.findBestNonWinningMove(board) ?? ComputerPlayer.selectRandomCell(availableCells);
   }
 
   makeMove(board, players) {
     const cell = this.selectCell(board, players);
-  // console.log({ cell, move: this.getFormattedMove(cell) });
+    // console.log({ cell, move: this.getFormattedMove(cell) });
     return this.getFormattedMove(cell);
   }
 }

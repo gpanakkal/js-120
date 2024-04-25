@@ -1,5 +1,3 @@
-const constants = require('./constants.json');
-
 class Player {
   constructor(name, marker) {
     this.name = name;

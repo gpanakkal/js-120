@@ -45,21 +45,23 @@ class HumanPlayer extends Player {
    * false if the user chose (n)o,
    * or the default value if the user provides empty input
    */
-  static getBooleanInput({trueValue, falseValue, defaultValue}, promptMsg, invalidInputMsgCb) {
+  static getBooleanInput({ trueValue, falseValue, defaultValue }, promptMsg, invalidInputMsgCb) {
     const noInputPassed = (input) => input.trim().length === 0;
     const partialMatch = (input, value) => value.startsWith(input.toLowerCase());
 
-    const isValidInput = (input) => (noInputPassed(input) || partialMatch(input, trueValue) || partialMatch(input, falseValue));
+    const isValidInput = (input) => (noInputPassed(input)
+    || partialMatch(input, trueValue) || partialMatch(input, falseValue));
 
     const userInput = HumanPlayer.getValidInput(promptMsg, invalidInputMsgCb, isValidInput);
     if (noInputPassed(userInput)) return defaultValue;
-    else if (partialMatch(userInput, trueValue)) return true;
-    else if (partialMatch(userInput, falseValue)) return false;
+    if (partialMatch(userInput, trueValue)) return true;
+    if (partialMatch(userInput, falseValue)) return false;
+    return undefined;
   }
 
   static isValidMove(validMoves, moveInput) {
-    const {rowLabels, columnLabels} = HumanPlayer.getValidMoveLabels(validMoves);
-    
+    const { rowLabels, columnLabels } = HumanPlayer.getValidMoveLabels(validMoves);
+
     const rowRegex = new RegExp(`[${rowLabels.join('')}]`, 'i');
     const columnRegex = new RegExp(`[${columnLabels.join('')}]`, 'i');
 
@@ -77,7 +79,7 @@ class HumanPlayer extends Player {
       outputObj.rowLabels.push(row);
       outputObj.columnLabels.push(col);
       return outputObj;
-    }, {rowLabels: [], columnLabels: []});
+    }, { rowLabels: [], columnLabels: [] });
   }
 
   /**
@@ -86,12 +88,13 @@ class HumanPlayer extends Player {
    * of the parsed row and column labels
    */
   getMoveInput(validMoves, promptMsg, invalidInputMsgCb) {
-
-    // const isValidMove = (input) => {
-    // };
-
     const promptWithName = `${this.displayName()}: ${promptMsg}`;
-    const userInput = HumanPlayer.getValidInput(promptWithName, invalidInputMsgCb, HumanPlayer.isValidMove.bind(this, validMoves));
+
+    const userInput = HumanPlayer.getValidInput(
+      promptWithName,
+      invalidInputMsgCb,
+      HumanPlayer.isValidMove.bind(this, validMoves),
+    );
     const inputChars = userInput.toUpperCase().split('');
     const { rowLabels, columnLabels } = HumanPlayer.getValidMoveLabels(validMoves);
     const rowLabel = inputChars.filter((char) => rowLabels.includes(char));

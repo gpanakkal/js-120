@@ -41,29 +41,29 @@ class Match {
 
     this.setWinner();
   }
-  
-    randomizeTurnOrder() {
-      this.players.sort(() => Math.random() - Math.random());
-      // console.log({ turnOrder: this.players.map((player) => player.displayName()) });
-    }
+
+  randomizeTurnOrder() {
+    this.players.sort(() => Math.random() - Math.random());
+    // console.log({ turnOrder: this.players.map((player) => player.displayName()) });
+  }
 
   playTurn(currentPlayer) {
     const isComputer = currentPlayer instanceof ComputerPlayer;
-    let move = isComputer ? currentPlayer.makeMove(this.board, this.players) 
+    const move = isComputer ? currentPlayer.makeMove(this.board, this.players)
       : this.getHumanMove(currentPlayer);
     this.board.state = move;
     this.logAction(currentPlayer, move);
   }
 
   logAction(player, move) {
-    const { row, col, val } = move;
+    const { row, col } = move;
     this.actions.push({ player, moveAddress: row + col });
   }
-  
+
   getActionDisplayLines() {
-    return this.actions.map(({player, moveAddress}) => `${player.displayName()}: ${moveAddress}`);
+    return this.actions.map(({ player, moveAddress }) => `${player.displayName()}: ${moveAddress}`);
   }
-  
+
   getHumanMove(currentPlayer) {
     const validMoves = this.board.getEmptyCellNames();
     const invalidMoveMsgCb = (input) => `${input} is invalid. Available cells: ${validMoves.join(', ')}`;
@@ -79,7 +79,7 @@ class Match {
   }
 
   getTitleDisplayLine() {
-    let matchStatus = this.winner === null ? 'ongoing' : 'over';
+    const matchStatus = this.winner === null ? 'ongoing' : 'over';
     return `MATCH ${matchStatus.toUpperCase()}`;
   }
 

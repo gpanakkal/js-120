@@ -32,7 +32,7 @@ class TicTacToeGame {
 
   static promptPlayAgain() {
     const promptMsg = constants.PLAY_AGAIN_PROMPT;
-    const values = {trueValue: 'yes', falseValue: 'no', defaultValue: false};
+    const values = { trueValue: 'yes', falseValue: 'no', defaultValue: false };
     const userInput = HumanPlayer.getBooleanInput(values, promptMsg);
     return userInput;
   }

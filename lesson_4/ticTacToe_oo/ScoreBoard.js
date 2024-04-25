@@ -1,29 +1,34 @@
 const { Player } = require('./Player');
-const constants = require('./constants.json');
 
 class ScoreBoard {
   static drawEntryName = 'draws';
 
   constructor(players) {
-    this.scores = players.map((player) => ({player, score: 0 }));
-    this.scores.push({ player: {
-      name: ScoreBoard.drawEntryName,
-      marker: null,
-    }, score: 0 });
+    this.scores = players.map((player) => ({ player, score: 0 }));
+    this.scores.push({
+      player: {
+        name: ScoreBoard.drawEntryName,
+        marker: null,
+      },
+      score: 0,
+    });
   }
 
   addWin(winner) {
     const winnerName = winner instanceof Player ? winner.name : ScoreBoard.drawEntryName;
     // console.log({ winnerName });
-    const winnerEntry = this.scores.find((entry) => entry.player.name === winnerName); 
+    const winnerEntry = this.scores.find((entry) => entry.player.name === winnerName);
     // console.log({score: this.scores, winnerEntry})
     winnerEntry.score += 1;
   }
 
   static formattedPlayerName(entry) {
-    const formattedName = entry.player.name === ScoreBoard.drawEntryName ? ScoreBoard.drawEntryName : entry.player.displayName();
+    const formattedName = entry.player.name === ScoreBoard.drawEntryName
+      ? ScoreBoard.drawEntryName
+      : entry.player.displayName();
     return formattedName;
   }
+
   // generate a row per player and return an array of rows
   getDisplayLines() {
     const maxNameLength = this.scores.reduce((max, entry) => {
@@ -38,10 +43,6 @@ class ScoreBoard {
       return rowString;
     });
     return boardRows;
-  }
-
-  display() {
-
   }
 }
 

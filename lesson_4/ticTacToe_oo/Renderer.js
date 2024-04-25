@@ -1,7 +1,7 @@
 const { RENDERER } = require('./constants.json');
 /**
  * Display the game while a match is ongoing
- * 
+ *
  * Layout: arrange the following in a grid:
  * - title (containing current match state - ongoing or over), centered above game board
  * - game board on left
@@ -11,19 +11,23 @@ const { RENDERER } = require('./constants.json');
  * - (optional) action log on the left of the game board
  *   - actions stored as an array of {player, moveAddress} pairs
  *   - displayed as `${player.displayName()}: ${moveAddress}`
- * 
+ *
  * Algorithm:
  * Take the match, scoreboard, and game board as inputs
  * Call the display method after a a match is started, a player makes a move, and a match ends
- * 
- * 
+ *
+ *
  * Display():
- * - initialize a 2d array 'displayGrid' where each subarray represents a row in an imaginary grid of elements to display, and each element of the subarray is an array of displaylines
- * - use a getDisplayLines() method on game state to get an array of rows for the game board, scoreboard, and action log, and store that in displayGrid
+ * - initialize a 2d array 'displayGrid' where
+ *   each subarray represents a row in an imaginary grid of elements to display, and
+ *   each element of the subarray is an array of displaylines
+ * - use a getDisplayLines() method on game state to get
+ *   an array of rows for the game board, scoreboard, and action log, and
+ *   store that in displayGrid
  * - map the grid rows to arrays of lines `renderLines`
  * - clear the console
  * - flatten `renderLines` and iterate over it, logging each line to the console
- * 
+ *
  * gridRowToLines():
  * - copy a row gridRowElements from displayGrid
  * - create a new array, renderLines
@@ -67,7 +71,7 @@ class Renderer {
   static maxElementLength(arr) {
     return arr.reduce((max, el) => Math.max(el.length, max), 0);
   }
-  
+
   static gridCellWidth(gridCell) {
     return Renderer.maxElementLength(gridCell);
   }
@@ -82,24 +86,29 @@ class Renderer {
     return spaced;
   }
 
-  titleLineOffset(gameStateOrder, gameBoard, titleLine) {
+  static titleLineOffset(gameStateOrder, gameBoard, titleLine) {
     const boardIdx = gameStateOrder.indexOf(gameBoard);
     const precedingCells = gameStateOrder.slice(0, boardIdx);
     const cellWidths = precedingCells.map(Renderer.gridCellWidth);
     const boardWidth = Renderer.gridCellWidth(gameStateOrder[boardIdx]);
     const boardFrontSpace = Math.floor((boardWidth - titleLine.length) / 2);
     return {
-      titleOffset: cellWidths.reduce((sum, el) => sum + el, 0), 
+      titleOffset: cellWidths.reduce((sum, el) => sum + el, 0),
       titleFiller: boardFrontSpace,
     };
   }
 
   formatTitleLine(gameStateOrder, gameBoard) {
     const rawTitleLine = this.match.getTitleDisplayLine();
-    const { titleOffset, titleFiller } = this.titleLineOffset(gameStateOrder, gameBoard, rawTitleLine);
+    const { titleOffset, titleFiller } = Renderer.titleLineOffset(
+      gameStateOrder,
+      gameBoard,
+      rawTitleLine,
+    );
     const fillerStr = '+'.repeat(titleFiller);
     const titleWithFiller = fillerStr + rawTitleLine + fillerStr;
-    const titleLine = this.paddingString + titleWithFiller.padStart(titleOffset + titleWithFiller.length, ' ') + '\n';
+    const paddedTitle = titleWithFiller.padStart(titleOffset + titleWithFiller.length, ' ');
+    const titleLine = `${this.paddingString}${paddedTitle}\n`;
     return titleLine;
   }
 
@@ -108,10 +117,11 @@ class Renderer {
     const renderLines = [];
     const cellWidths = gridRow.map(Renderer.gridCellWidth);
     const finalLineCount = Renderer.maxElementLength(gridRow);
-    const spaced = gridRow.map((cell, idx) => Renderer.imputeEmptySpace(cell, cellWidths[idx], finalLineCount));
+    const spaced = gridRow
+      .map((cell, idx) => Renderer.imputeEmptySpace(cell, cellWidths[idx], finalLineCount));
 
     for (let i = 0; i < finalLineCount; i += 1) {
-      let renderLineSegments = [];
+      const renderLineSegments = [];
       spaced.forEach((cell) => renderLineSegments.push(cell[i]));
       const renderLine = renderLineSegments.join(this.paddingString);
       renderLines.push(renderLine);
@@ -132,8 +142,16 @@ class Renderer {
 
   getStateWithTitles() {
     const { actionLog, gameBoard, scoreBoard } = this.gameState;
-    const formattedActionLogTitle = Renderer.formatTitle(actionLog, RENDERER.ACTION_LOG_TTTLE, RENDERER.ACTION_LOG_MIN_WIDTH);
-    const formattedScoreBoardTitle = Renderer.formatTitle(scoreBoard, RENDERER.SCOREBOARD_TTTLE, RENDERER.SCOREBOARD_MIN_WIDTH);
+    const formattedActionLogTitle = Renderer.formatTitle(
+      actionLog,
+      RENDERER.ACTION_LOG_TTTLE,
+      RENDERER.ACTION_LOG_MIN_WIDTH,
+    );
+    const formattedScoreBoardTitle = Renderer.formatTitle(
+      scoreBoard,
+      RENDERER.SCOREBOARD_TTTLE,
+      RENDERER.SCOREBOARD_MIN_WIDTH,
+    );
     actionLog.unshift(formattedActionLogTitle);
     scoreBoard.unshift(formattedScoreBoardTitle);
     return { actionLog, gameBoard, scoreBoard };

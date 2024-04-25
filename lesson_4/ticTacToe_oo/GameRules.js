@@ -27,8 +27,8 @@ class GameRules {
   }
 
   static promptUseDefaults() {
-    const useDefaultsPrompt = `Use default Tic Tac Toe rules? (y)es / (n)o (default is yes):`;
-    const options = {trueValue: 'yes', falseValue: 'no', defaultValue: true};
+    const useDefaultsPrompt = 'Use default Tic Tac Toe rules? (y)es / (n)o (default is yes):';
+    const options = { trueValue: 'yes', falseValue: 'no', defaultValue: true };
     const response = HumanPlayer.getBooleanInput(options, useDefaultsPrompt);
     return response;
   }
