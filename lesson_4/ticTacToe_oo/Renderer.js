@@ -64,7 +64,7 @@ class Renderer {
 
   display() {
     const renderLines = this.getDisplayLines();
-    console.clear();
+    // console.clear();
     renderLines.forEach((line) => console.log(line));
   }
 

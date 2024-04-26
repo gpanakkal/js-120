@@ -19,6 +19,7 @@ class ComputerPlayer extends Player {
 
   static getModalShapeEntry(shapeFreqs) {
     const shapeFreqEntries = Object.entries(shapeFreqs);
+    // if (shapeFreqEntries.length === 0) return [' ', 0];
     return shapeFreqEntries.toSorted((a, b) => b[1] - a[1])[0];
   }
 
@@ -29,7 +30,12 @@ class ComputerPlayer extends Player {
     const potentialThreatLines = board.victoryLines.filter((line) => {
       const shapeCounts = ComputerPlayer.countShapesInLine(board, line);
       const { empty: emptyCellCount, ...nonEmpty } = shapeCounts;
-      const [modalShape, modalShapeCount] = ComputerPlayer.getModalShapeEntry(nonEmpty);
+      console.log({ nonEmpty });
+      let modalShape = marker;
+      let modalShapeCount = 0;
+      if (Object.keys(nonEmpty).length > 0) {
+        [modalShape, modalShapeCount] = ComputerPlayer.getModalShapeEntry(nonEmpty);
+      }
       const correctMarker = modalShape === marker;
       const enoughCellsEmpty = emptyCellCount <= maxCellsRemaining;
       const enoughCellsFilled = modalShapeCount + maxCellsRemaining >= winningLineLength;
@@ -40,7 +46,9 @@ class ComputerPlayer extends Player {
   }
 
   static firstThreatCell(board, threatLines) {
-    return threatLines[0].filter((address) => board.isEmptyCell(address))[0];
+    const firstEmptyCell = threatLines[0].filter((address) => board.isEmptyCell(address))[0];
+    console.log({ firstEmptyCell });
+    return firstEmptyCell;
   }
 
   #opponentWinningMoves(board, players) {
@@ -74,9 +82,13 @@ class ComputerPlayer extends Player {
 
       if (partialThreatLines.length > 0) {
         const threatLinesPerCell = ComputerPlayer.threatLinesPerCell(partialThreatLines);
-        const maxLines = Math.max(...Object.values(threatLinesPerCell));
-        const bestOptions = Object.entries(threatLinesPerCell)
-          .filter(([, count]) => count === maxLines).map(([address]) => address);
+        const threatLinesPerEmptyCell = Object.entries(threatLinesPerCell)
+        .filter(([address, count]) => board.state[address] === board.emptyCellValue);
+        const maxLines = Math.max(...threatLinesPerEmptyCell.map((entry) => entry[1]));
+        console.log({ threatLinesPerCell, threatLinesPerEmptyCell, maxLines });
+        const bestOptions = threatLinesPerEmptyCell.filter(([address, count]) => count === maxLines)
+          .map(([address]) => address);
+        console.log({ bestOptions });
         return ComputerPlayer.selectRandomCell(bestOptions);
       }
     }
@@ -90,6 +102,7 @@ class ComputerPlayer extends Player {
 
   selectCell(board, players) {
     const availableCells = board.getEmptyCellNames(board.state);
+    console.log({ availableCells });
     const winningMoves = ComputerPlayer.threatLines(board, this.marker);
     const opponentWinningMoves = this.#opponentWinningMoves(board, players);
 
