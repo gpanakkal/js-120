@@ -3,3 +3,5 @@ db/*.sqlite3
 .DS_Store
 .vscode
 testing/
+
+scratch.js
